@@ -41,4 +41,13 @@ const deleteTodo = (baseUrl, path, id, header) => {
     }
 }
 
-export { createTodo, registerUser, loginUser, deleteTodo }
+const refreshToken = (baseUrl, path, data) => {
+    const url = `${baseUrl}/${path}`;
+    return {
+        method: 'post',
+        url,
+        data,
+    }
+}
+
+export { createTodo, registerUser, loginUser, deleteTodo, refreshToken }

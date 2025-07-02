@@ -34,6 +34,16 @@ export class TodoController {
         }
     }
 
+    async refreshToken(request, response) {
+        try {
+            const data = await this.model.refreshToken(request);
+            const message = "Token is refreshed successfully.";
+            await this.setupResponse(response, 200, message, data);
+        } catch (error) {
+            await this.setupErrorResponse(response, 500, "failed to refresh the token", error);
+        }
+    }
+
     async deleteTodoTask(request, response) {
         try {
             const data = await this.model.deleteTodoTask(request.params.id);

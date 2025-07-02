@@ -39,6 +39,10 @@ export class Server {
         this.app.delete('/todo/:id', middleware, (request, response) => {
             this.controller.deleteTodoTask(request, response);
         })
+
+        this.app.post('/refresh', (request, response) => {
+            this.controller.refreshToken(request, response);
+        })
     }
 
     async startServer(port = 3000, host = '0.0.0.0') {

@@ -27,7 +27,8 @@ export class TodoModel {
 
         // Generate token
         const token = await this.createToken(user);
-        return { token };
+        const refreshToken = await this.createRefreshToken(user);
+        return { token, refreshToken };
     }
 
     async registerUser(request) {
@@ -45,18 +46,30 @@ export class TodoModel {
         });
 
         const token = await this.createToken(newUser);
+        const refreshToken = await this.createRefreshToken(newUser);
         console.log("User is registered successfully");
 
         const data = {
             user: newUser,
-            token
+            tokens: {
+                token,
+                refreshToken
+            }
         }
         return data;
     }
 
     async createToken(user) {
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
-            expiresIn: '1h'
+            expiresIn: '10s'
+        })
+
+        return token;
+    }
+
+    async createRefreshToken(user) {
+        const token = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_KEY, {
+            expiresIn: '7d'
         })
 
         return token;
@@ -70,6 +83,24 @@ export class TodoModel {
         const salt = await bcrypt.genSalt(10);
         const hashedPwd = await bcrypt.hash(password, salt);
         return hashedPwd;
+    }
+
+    async refreshToken(request) {
+        const refreshToken = request.body.token;
+        if (!refreshToken) {
+            throw new Error("Refresh token not found");
+        }
+
+        try {
+            // compare the refresh token
+            const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY);
+
+            // create token again
+            const newAccessToken = await this.createToken(decoded);
+            return { token: newAccessToken };
+        } catch (err) {
+            return res.status(403).json({ message: "Invalid or expired refresh token" });
+        }
     }
 
     async createTodo(request) {
