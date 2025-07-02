@@ -1,5 +1,6 @@
 import express, { response } from "express"
 import mongoose from "mongoose";
+import rateLimit from "express-rate-limit";
 import { TodoController } from "../controller/TodoController.js";
 import { middleware } from "../middleware/AuthMiddleware.js";
 
@@ -10,7 +11,18 @@ export class Server {
         await this.initDB();
         this.controller = new TodoController();
         this.app.use(express.json());
+        await this.setupRateLimiter();
         this.setRoutes();
+    }
+
+    async setupRateLimiter() {
+        const limiter = rateLimit({
+            windowMs: 1 * 60 * 1000,
+            max: 4,
+            message: 'Too many requests from this IP, please try again later.',
+        })
+
+        this.app.use('/todo', limiter);
     }
 
     async initDB() {
