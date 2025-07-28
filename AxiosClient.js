@@ -7,8 +7,10 @@ export class AxiosClient {
         const config = loginUser('http://127.0.0.1:3000', 'login', data);
         const resData = await this.makeRequest(config);
 
-        saveToken(resData.data.token);
-        saveRefreshToken(resData.data.refreshToken);
+        if (resData && resData.data) {
+            saveToken(resData.data.token);
+            saveRefreshToken(resData.data.refreshToken);
+        }
     }
 
     async registerUser(data) {
@@ -65,7 +67,7 @@ export class AxiosClient {
                 const res = await this.attemptRefresh();
                 if (!res) {
                     console.log("refresh request failed");
-                    return;
+                    return null;
                 }
 
                 // retry the operation
@@ -73,6 +75,7 @@ export class AxiosClient {
                 config.headers.authorization = `Bearer ${token}`;
                 const retryResponse = await axios(config);
                 console.log(retryResponse.data);
+                return retryResponse.data;
 
             } else {
                 if (error.response) {
@@ -80,8 +83,8 @@ export class AxiosClient {
                 } else {
                     console.error("No response received. Is the server running?");
                 }
+                return null; // Return null for non-401 errors
             }
-
         }
     }
 }

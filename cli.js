@@ -5,6 +5,14 @@ import { AxiosClient } from "./AxiosClient.js";
 const program = new Command();
 
 program
+    .command("start-server")
+    .action(async () => {
+        const server = new Server();
+        await server.init();
+        await server.startServer();
+    })
+
+program
     .command('register-user')
     .requiredOption('--name <string>', 'Name of the user')
     .requiredOption('--email <string>', 'Email of the user')
@@ -15,10 +23,6 @@ program
             console.log("Both the password do not match");
             process.exit(1);
         }
-
-        const server = new Server();
-        await server.init();
-        await server.startServer();
 
         const client = new AxiosClient();
         const data = {
@@ -35,10 +39,6 @@ program
     .requiredOption('--email <string>', 'Email of the user')
     .requiredOption('--pwd <string>', 'Enter your password please')
     .action(async (options) => {
-        const server = new Server();
-        await server.init();
-        await server.startServer();
-
         const client = new AxiosClient();
         const data = {
             "email": options.email,
@@ -53,10 +53,6 @@ program
     .option('--title <string>', 'Title of the TODO')
     .option('--des <string>', 'Description of the TODO')
     .action(async (options) => {
-        const server = new Server();
-        await server.init();
-        await server.startServer();
-
         const client = new AxiosClient();
         const data = {
             "title": options.title,
@@ -70,10 +66,6 @@ program
     .command('delete-todo')
     .requiredOption('--id <string>', 'Id of the blog')
     .action(async (options) => {
-        const server = new Server();
-        await server.init();
-        server.startServer();
-
         const client = new AxiosClient();
         await client.deleteTodoTask(options.id);
     });

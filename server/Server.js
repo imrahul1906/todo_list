@@ -1,8 +1,8 @@
 import express, { response } from "express"
-import mongoose from "mongoose";
 import rateLimit from "express-rate-limit";
 import { TodoController } from "../controller/TodoController.js";
 import { middleware } from "../middleware/AuthMiddleware.js";
+import { connectDB } from "../config/DatabaseConfig.js";
 
 export class Server {
 
@@ -26,13 +26,7 @@ export class Server {
     }
 
     async initDB() {
-        await mongoose.connect('mongodb://localhost:27017', {
-            dbName: "todo_db"
-        }).then(() => {
-            console.log("DB connection is successfull");
-        }).catch((error) => {
-            console.log(`Error in connection with DB: ${error}`);
-        })
+        await connectDB();
     }
 
     setRoutes() {
