@@ -73,7 +73,7 @@ export class TodoController {
             const message = "Todo tasks fetched successfully.";
             await this.setupResponse(response, 200, message, data);
         } catch (error) {
-            const status = this._statusFromError ? this._statusFromError(error) : 500;
+            const status = this.statusFromError(error);
             await this.setupErrorResponse(response, status, "failed to fetch todo tasks", error);
         }
     }
@@ -84,7 +84,7 @@ export class TodoController {
             const message = "Token is refreshed successfully.";
             await this.setupResponse(response, 200, message, data);
         } catch (error) {
-            const status = this._statusFromError(error);
+            const status = this.statusFromError(error);
             await this.setupErrorResponse(response, status, "failed to refresh the token", error);
         }
     }
@@ -95,7 +95,7 @@ export class TodoController {
             const message = "Todo task is deleted successfully.";
             await this.setupResponse(response, 200, message, data);
         } catch (error) {
-            const status = this._statusFromError(error);
+            const status = this.statusFromError(error);
             await this.setupErrorResponse(response, status, "failed to delete todo task", error);
         }
     }
