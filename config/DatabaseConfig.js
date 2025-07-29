@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
 let isDBConnected = false;
 export async function connectDB() {
@@ -7,8 +9,8 @@ export async function connectDB() {
         return;
     }
 
-    await mongoose.connect('mongodb://localhost:27017', {
-        dbName: "todo_db",
+    await mongoose.connect(process.env.MONGODB_URI, {
+        dbName: process.env.DB_NAME,
         // Connection pool settings for better performance
         maxPoolSize: 10,
         minPoolSize: 2,

@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
 // 1. connect to db
 // 2. Create test data
@@ -8,8 +10,8 @@ import mongoose from "mongoose";
 // 6. Compare results.
 
 async function connectToDb() {
-    await mongoose.connect("mongodb://localhost:27017", {
-        dbName: "todo_db"
+    await mongoose.connect(process.env.MONGODB_URI, {
+        dbName: process.env.DB_NAME
     }).then(() => {
         console.log("Connection to mongo db is successful");
     }).catch((error) => {

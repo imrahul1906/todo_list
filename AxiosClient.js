@@ -1,10 +1,13 @@
 import axios, { Axios } from "axios";
+import dotenv from "dotenv";
+dotenv.config();
+const BASE_URL = process.env.BASE_API_URL || `http://127.0.0.1:${process.env.PORT || 3000}`;
 import { createTodo, registerUser, loginUser, deleteTodo, refreshToken, logout } from "./config/RequestConfig.js";
 import { saveToken, loadToken, saveRefreshToken, loadRefreshToken, clearToken } from "./config/TokenStorage.js";
 export class AxiosClient {
 
     async loginUser(data) {
-        const config = loginUser('http://127.0.0.1:3000', 'login', data);
+        const config = loginUser(BASE_URL, 'api/login', data);
         const resData = await this.makeRequest(config);
 
         if (resData && resData.data) {
@@ -14,7 +17,7 @@ export class AxiosClient {
     }
 
     async registerUser(data) {
-        const config = registerUser('http://127.0.0.1:3000', 'register', data);
+        const config = registerUser(BASE_URL, 'api/register', data);
         await this.makeRequest(config);
     }
 
@@ -23,7 +26,7 @@ export class AxiosClient {
         const data = {
             token: refreshToken
         }
-        const config = logout('http://127.0.0.1:3000', 'api/logout', data);
+        const config = logout(BASE_URL, 'api/logout', data);
         await this.makeRequest(config);
         clearToken();
     }
@@ -33,7 +36,7 @@ export class AxiosClient {
         const headers = {
             authorization: `Bearer ${token}`
         }
-        const config = deleteTodo('http://127.0.0.1:3000', 'todo', id, headers);
+        const config = deleteTodo(BASE_URL, 'api/todo', id, headers);
         await this.makeRequest(config);
     }
 
@@ -42,7 +45,7 @@ export class AxiosClient {
         const headers = {
             authorization: `Bearer ${token}`
         }
-        const config = createTodo('http://127.0.0.1:3000', 'todo', data, headers);
+        const config = createTodo(BASE_URL, 'api/todo', data, headers);
         await this.makeRequest(config);
     }
 
@@ -51,7 +54,7 @@ export class AxiosClient {
         const data = {
             token
         }
-        const config = refreshToken('http://127.0.0.1:3000', 'refresh', data);
+        const config = refreshToken(BASE_URL, 'api/refresh', data);
         try {
             const response = await axios(config);
             saveToken(response.data.data.token);

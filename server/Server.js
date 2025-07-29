@@ -22,7 +22,7 @@ export class Server {
             message: 'Too many requests from this IP, please try again later.',
         })
 
-        this.app.use('/todo', limiter);
+        this.app.use('/api', limiter);
     }
 
     async initDB() {
@@ -30,15 +30,15 @@ export class Server {
     }
 
     setRoutes() {
-        this.app.post('/todo', middleware, (request, response) => {
+        this.app.post('/api/todo', middleware, (request, response) => {
             this.controller.createTodo(request, response);
         })
 
-        this.app.post('/register', (request, response) => {
+        this.app.post('/api/register', (request, response) => {
             this.controller.registerUser(request, response);
         })
 
-        this.app.post('/login', (request, response) => {
+        this.app.post('/api/login', (request, response) => {
             this.controller.loginUser(request, response);
         })
 
@@ -46,11 +46,11 @@ export class Server {
             this.controller.logout(request, response);
         })
 
-        this.app.delete('/todo/:id', middleware, (request, response) => {
+        this.app.delete('/api/todo/:id', middleware, (request, response) => {
             this.controller.deleteTodoTask(request, response);
         })
 
-        this.app.post('/refresh', (request, response) => {
+        this.app.post('/api/refresh', (request, response) => {
             this.controller.refreshToken(request, response);
         })
     }
