@@ -175,6 +175,7 @@ export class TodoModel {
     async createTodo(request) {
         try {
             const todoTask = await TODO.create({
+                owner: request.user.id,
                 title: request.body.title,
                 description: request.body.description
             })

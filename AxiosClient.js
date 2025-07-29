@@ -55,13 +55,9 @@ export class AxiosClient {
             token
         }
         const config = refreshToken(BASE_URL, 'api/refresh', data);
-        try {
-            const response = await axios(config);
-            saveToken(response.data.data.token);
-            return response.data;
-        } catch (error) {
-            console.error("Refresh Request failed:", error.message);
-        }
+        const response = await axios(config);
+        saveToken(response.data.data.token);
+        return response.data;
     }
 
     async makeRequest(config) {
@@ -70,29 +66,27 @@ export class AxiosClient {
             console.log(response.data);
             return response.data;
         } catch (error) {
-            console.error("Request failed:", error.message);
-            if (error.response && error.response.status == 401) {
-                console.error("Refreshing token to login again.");
+            if (error.response && error.response.status == 401 &&
+                config.headers && config.headers.authorization) {
+                console.error("Access token might be expired. Attempting refresh …");
+
                 const res = await this.attemptRefresh();
                 if (!res) {
-                    console.log("refresh request failed");
                     return null;
                 }
 
-                // retry the operation
                 const token = loadToken();
                 config.headers.authorization = `Bearer ${token}`;
                 const retryResponse = await axios(config);
                 console.log(retryResponse.data);
                 return retryResponse.data;
-
             } else {
                 if (error.response) {
                     console.error("Server responded with:", error.response.data);
                 } else {
                     console.error("No response received. Is the server running?");
                 }
-                return null; // Return null for non-401 errors
+                return null;
             }
         }
     }

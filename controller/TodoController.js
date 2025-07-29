@@ -4,13 +4,33 @@ export class TodoController {
         this.model = new TodoModel();
     }
 
+
+    statusFromError(error, fallback = 500) {
+        if (error?.status && Number.isInteger(error.status)) return error.status;
+
+        const msg = (error?.message || "").toLowerCase();
+
+        // Authentication / authorisation issues
+        if (msg.includes("invalid token") || msg.includes("expired token")) return 401;
+        if (msg.includes("password wrong") || msg.includes("entered password is wrong")) return 401;
+
+        // Duplicate / validation errors
+        if (msg.includes("already exists") || msg.includes("duplicate")) return 409;
+
+        // Bad input
+        if (msg.includes("not provided") || msg.includes("not found") || msg.includes("missing")) return 400;
+
+        return fallback;
+    }
+
     async registerUser(request, response) {
         try {
             const data = await this.model.registerUser(request);
             const message = "User registration is successfull";
             await this.setupResponse(response, 200, message, data);
         } catch (error) {
-            await this.setupErrorResponse(response, 500, "Error in registring user", error);
+            const status = this.statusFromError(error);
+            await this.setupErrorResponse(response, status, "Error in registring user", error);
         }
     }
 
@@ -20,7 +40,8 @@ export class TodoController {
             const message = "login Successfull";
             await this.setupResponse(response, 200, message, data);
         } catch (error) {
-            await this.setupErrorResponse(response, 500, "Error while logging in", error);
+            const status = this.statusFromError(error);
+            await this.setupErrorResponse(response, status, "Error while logging in", error);
         }
     }
 
@@ -31,7 +52,8 @@ export class TodoController {
             const message = "logout Successfully";
             await this.setupResponse(response, 200, message, data);
         } catch (error) {
-            await this.setupErrorResponse(response, 500, "Error while logging out", error);
+            const status = this.statusFromError(error);
+            await this.setupErrorResponse(response, status, "Error while logging out", error);
         }
     }
 
@@ -41,7 +63,8 @@ export class TodoController {
             const message = "Todo task is created successfully.";
             await this.setupResponse(response, 200, message, data);
         } catch (error) {
-            await this.setupErrorResponse(response, 500, "failed to create todo task", error);
+            const status = this.statusFromError(error);
+            await this.setupErrorResponse(response, status, "failed to create todo task", error);
         }
     }
 
@@ -51,7 +74,8 @@ export class TodoController {
             const message = "Token is refreshed successfully.";
             await this.setupResponse(response, 200, message, data);
         } catch (error) {
-            await this.setupErrorResponse(response, 500, "failed to refresh the token", error);
+            const status = this.statusFromError(error);
+            await this.setupErrorResponse(response, status, "failed to refresh the token", error);
         }
     }
 
@@ -61,7 +85,8 @@ export class TodoController {
             const message = "Todo task is deleted successfully.";
             await this.setupResponse(response, 200, message, data);
         } catch (error) {
-            await this.setupErrorResponse(response, 500, "failed to delete todo task", error);
+            const status = this.statusFromError(error);
+            await this.setupErrorResponse(response, status, "failed to delete todo task", error);
         }
     }
 
