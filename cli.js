@@ -71,6 +71,15 @@ program
     });
 
 program
+    .command('list-todos')
+    .option('--page <number>', 'Page number', '1')
+    .option('--limit <number>', 'Items per page', '10')
+    .action(async (options) => {
+        const client = new AxiosClient();
+        await client.listTodos(options.page, options.limit);
+    });
+
+program
     .command('logout')
     .action(async (options) => {
 

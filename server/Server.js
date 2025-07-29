@@ -18,7 +18,7 @@ export class Server {
     async setupRateLimiter() {
         const limiter = rateLimit({
             windowMs: 1 * 60 * 1000,
-            max: 4,
+            max: 20,
             message: 'Too many requests from this IP, please try again later.',
         })
 
@@ -32,6 +32,10 @@ export class Server {
     setRoutes() {
         this.app.post('/api/todo', middleware, (request, response) => {
             this.controller.createTodo(request, response);
+        })
+
+        this.app.get('/api/todo', middleware, (request, response) => {
+            this.controller.listTodos(request, response);
         })
 
         this.app.post('/api/register', (request, response) => {

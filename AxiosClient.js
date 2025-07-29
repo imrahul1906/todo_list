@@ -2,7 +2,7 @@ import axios, { Axios } from "axios";
 import dotenv from "dotenv";
 dotenv.config();
 const BASE_URL = process.env.BASE_API_URL || `http://127.0.0.1:${process.env.PORT || 3000}`;
-import { createTodo, registerUser, loginUser, deleteTodo, refreshToken, logout } from "./config/RequestConfig.js";
+import { createTodo, registerUser, loginUser, deleteTodo, refreshToken, logout, getTodos } from "./config/RequestConfig.js";
 import { saveToken, loadToken, saveRefreshToken, loadRefreshToken, clearToken } from "./config/TokenStorage.js";
 export class AxiosClient {
 
@@ -46,6 +46,16 @@ export class AxiosClient {
             authorization: `Bearer ${token}`
         }
         const config = createTodo(BASE_URL, 'api/todo', data, headers);
+        await this.makeRequest(config);
+    }
+
+    async listTodos(page = 1, limit = 10) {
+        const token = loadToken();
+        const headers = {
+            authorization: `Bearer ${token}`
+        };
+
+        const config = getTodos(BASE_URL, 'api/todo', headers, page, limit);
         await this.makeRequest(config);
     }
 

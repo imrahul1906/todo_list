@@ -142,7 +142,6 @@ export class TodoModel {
         return { token: newAccessToken, refreshToken: newRefreshToken };
     }
 
-    // ... existing code ...
     async logout(request) {
         const incomingToken = request.body.token;
         if (!incomingToken) {
@@ -189,6 +188,36 @@ export class TodoModel {
     async deleteTodoTask(id) {
         return await TODO.findByIdAndDelete(id);
 
+    }
+
+    /**
+     * Paginated list of todos for the current user
+     * query params: ?page=1&limit=10
+     */
+    async listTodos(request) {
+        const page = Math.max(parseInt(request.query.page) || 1, 1);
+        const limit = Math.min(parseInt(request.query.limit) || 10, 100);
+
+        const skip = (page - 1) * limit;
+        const ownerId = request.user.id;
+
+        const [items, total] = await Promise.all([
+            TODO.find({ owner: ownerId })
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit),
+            TODO.countDocuments({ owner: ownerId })
+        ]);
+
+        const pages = Math.ceil(total / limit);
+        const stringItem = JSON.stringify(items);
+        return {
+            page,
+            limit,
+            pages,
+            total,
+            stringItem
+        };
     }
 
     async userExist(email) {

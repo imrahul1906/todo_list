@@ -38,6 +38,18 @@ const createTodo = (baseUrl, path, data, header) => {
     }
 }
 
+const getTodos = (baseUrl, path, header, page, limit) => {
+    const url = `${baseUrl}/${path}?page=${page}&limit=${limit}`;
+    return {
+        method: 'get',
+        url,
+        headers: {
+            'Content-Type': "application/json",
+            ...header
+        },
+    };
+}
+
 const deleteTodo = (baseUrl, path, id, header) => {
     const url = `${baseUrl}/${path}/${id}`;
     return {
@@ -59,4 +71,4 @@ const refreshToken = (baseUrl, path, data) => {
     }
 }
 
-export { createTodo, registerUser, loginUser, logout, deleteTodo, refreshToken }
+export { createTodo, registerUser, loginUser, logout, deleteTodo, refreshToken, getTodos }
