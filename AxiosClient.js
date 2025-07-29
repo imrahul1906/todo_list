@@ -1,5 +1,5 @@
 import axios, { Axios } from "axios";
-import { createTodo, registerUser, loginUser, deleteTodo, refreshToken } from "./config/RequestConfig.js";
+import { createTodo, registerUser, loginUser, deleteTodo, refreshToken, logout } from "./config/RequestConfig.js";
 import { saveToken, loadToken, saveRefreshToken, loadRefreshToken, clearToken } from "./config/TokenStorage.js";
 export class AxiosClient {
 
@@ -19,6 +19,12 @@ export class AxiosClient {
     }
 
     async logout() {
+        const refreshToken = loadRefreshToken();
+        const data = {
+            token: refreshToken
+        }
+        const config = logout('http://127.0.0.1:3000', 'api/logout', data);
+        await this.makeRequest(config);
         clearToken();
     }
 

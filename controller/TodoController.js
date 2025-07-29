@@ -24,6 +24,17 @@ export class TodoController {
         }
     }
 
+    async logout(request, response) {
+        try {
+            console.log("controller method");
+            const data = await this.model.logout(request);
+            const message = "logout Successfully";
+            await this.setupResponse(response, 200, message, data);
+        } catch (error) {
+            await this.setupErrorResponse(response, 500, "Error while logging out", error);
+        }
+    }
+
     async createTodo(request, response) {
         try {
             const data = await this.model.createTodo(request);

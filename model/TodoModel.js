@@ -1,5 +1,7 @@
 import { TODO } from "./TodoSchema.js";
 import { User } from "./UserSchema.js";
+import { RefreshToken } from "./RefreshTokenSchema.js";
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
@@ -60,17 +62,36 @@ export class TodoModel {
     }
 
     async createToken(user) {
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
-            expiresIn: '10s'
+        const payload = {
+            id: user._id,
+            tokenVersion: user.tokenVersion
+        }
+        const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+            expiresIn: '15m'
         })
-
         return token;
     }
 
     async createRefreshToken(user) {
-        const token = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_KEY, {
+        const jti = crypto.randomUUID();
+
+        const payload = {
+            id: user._id,
+            tokenVersion: user.tokenVersion,
+            jti
+        }
+
+        const token = jwt.sign(payload, process.env.JWT_REFRESH_KEY, {
             expiresIn: '7d'
         })
+
+        // Persist single-use refresh token meta-data
+        await RefreshToken.create({
+            jti,
+            userId: user._id,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            revoked: false
+        });
 
         return token;
     }
@@ -86,21 +107,69 @@ export class TodoModel {
     }
 
     async refreshToken(request) {
-        const refreshToken = request.body.token;
-        if (!refreshToken) {
+        const incomingToken = request.body.token;
+        if (!incomingToken) {
             throw new Error("Refresh token not found");
         }
 
+        let decoded;
         try {
-            // compare the refresh token
-            const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY);
-
-            // create token again
-            const newAccessToken = await this.createToken(decoded);
-            return { token: newAccessToken };
+            decoded = jwt.verify(incomingToken, process.env.JWT_REFRESH_KEY);
         } catch (err) {
-            return res.status(403).json({ message: "Invalid or expired refresh token" });
+            throw new Error("Invalid or expired refresh token");
         }
+
+        // Validate against DB (single-use)
+        const stored = await RefreshToken.findOne({
+            jti: decoded.jti,
+            userId: decoded.id,
+            revoked: false
+        });
+
+        if (!stored) {
+            throw new Error("Refresh token revoked or not found");
+        }
+
+        // Revoke old token
+        stored.revoked = true;
+        await stored.save();
+
+        // Generate new pair
+        const user = await User.findById(decoded.id);
+        const newAccessToken = await this.createToken(user);
+        const newRefreshToken = await this.createRefreshToken(user);
+
+        return { token: newAccessToken, refreshToken: newRefreshToken };
+    }
+
+    // ... existing code ...
+    async logout(request) {
+        const incomingToken = request.body.token;
+        if (!incomingToken) {
+            throw new Error("Refresh token not provided for logout");
+        }
+
+        let decoded;
+        try {
+            decoded = jwt.verify(incomingToken, process.env.JWT_REFRESH_KEY);
+        } catch (err) {
+            throw new Error("Invalid or expired refresh token");
+        }
+
+        const stored = await RefreshToken.findOne({ jti: decoded.jti, userId: decoded.id });
+        if (!stored) {
+            console.log("Refresh token already revoked or missing");
+            return {
+                revoked: false,
+            };
+        }
+
+        stored.revoked = true;
+        await stored.save();
+        console.log(`Refresh token ${decoded.jti} revoked successfully`);
+        return {
+            revoked: true,
+        };
     }
 
     async createTodo(request) {

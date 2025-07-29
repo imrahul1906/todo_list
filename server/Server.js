@@ -42,6 +42,10 @@ export class Server {
             this.controller.loginUser(request, response);
         })
 
+        this.app.post('/api/logout', (request, response) => {
+            this.controller.logout(request, response);
+        })
+
         this.app.delete('/todo/:id', middleware, (request, response) => {
             this.controller.deleteTodoTask(request, response);
         })

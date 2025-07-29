@@ -7,6 +7,15 @@ const loginUser = (baseUrl, path, data) => {
     }
 }
 
+const logout = (baseUrl, path, data) => {
+    const url = `${baseUrl}/${path}`;
+    return {
+        method: 'post',
+        url,
+        data
+    }
+}
+
 const registerUser = (baseUrl, path, data) => {
     const url = `${baseUrl}/${path}`;
     return {
@@ -50,4 +59,4 @@ const refreshToken = (baseUrl, path, data) => {
     }
 }
 
-export { createTodo, registerUser, loginUser, deleteTodo, refreshToken }
+export { createTodo, registerUser, loginUser, logout, deleteTodo, refreshToken }
