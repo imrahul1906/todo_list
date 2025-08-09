@@ -7,4 +7,6 @@ const refreshTokenSchema = new mongoose.Schema({
     revoked: { type: Boolean, default: false }
 });
 
+refreshTokenSchema.index({ userId: 1 }, { revoked: 1 });
+
 export const RefreshToken = mongoose.model("RefreshToken", refreshTokenSchema); 

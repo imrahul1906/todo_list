@@ -1,0 +1,41 @@
+config:
+  target: "http://127.0.0.1:3000"
+  phases:
+    - name: "ramp-5"
+      duration: 60
+      arrivalRate: 5
+    - name: "ramp-10"
+      duration: 60
+      arrivalRate: 10
+    - name: "ramp-20"
+      duration: 60
+      arrivalRate: 20
+  payload:
+    path: "users.csv"
+    fields:
+      - name
+      - email
+      - password
+  plugins:
+    expect: {}
+  expectations:
+    - "http.response_time.p95 < 6000"
+    - "errors.ETIMEDOUT == 0"
+    - "http.codes.5xx == 0"
+scenarios:
+  - name: "refresh-only"
+    flow:
+      - post:
+          url: "/api/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            - json: "$.data.refreshToken"
+              as: "refreshToken"
+      - loop:
+          - post:
+              url: "/api/refresh"
+              json:
+                token: "{{ refreshToken }}"
+        count: 5 

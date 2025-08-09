@@ -12,7 +12,7 @@ export async function connectDB() {
     await mongoose.connect(process.env.MONGODB_URI, {
         dbName: process.env.DB_NAME,
         // Connection pool settings for better performance
-        maxPoolSize: 10,
+        maxPoolSize: 50,
         minPoolSize: 2,
         maxIdleTimeMS: 30000,
     }).then(() => {

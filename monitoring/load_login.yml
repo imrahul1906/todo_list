@@ -1,0 +1,32 @@
+config:
+  target: "http://127.0.0.1:3000"
+  phases:
+    - name: "ramp-5"
+      duration: 60
+      arrivalRate: 5
+    - name: "ramp-10"
+      duration: 60
+      arrivalRate: 10
+    - name: "ramp-20"
+      duration: 60
+      arrivalRate: 20
+  payload:
+    path: "users.csv"
+    fields:
+      - name
+      - email
+      - password
+  plugins:
+    expect: {}
+  expectations:
+    - "http.response_time.p95 < 8000"
+    - "errors.ETIMEDOUT == 0"
+    - "http.codes.5xx == 0"
+scenarios:
+  - name: "login-only"
+    flow:
+      - post:
+          url: "/api/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}" 

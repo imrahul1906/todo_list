@@ -12,7 +12,8 @@ const schema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     }
-
 })
+
+schema.index({ owner: 1 });
 
 export const TODO = mongoose.model('TODO', schema)

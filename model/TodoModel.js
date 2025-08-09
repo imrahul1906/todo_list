@@ -2,7 +2,7 @@ import { TODO } from "./TodoSchema.js";
 import { User } from "./UserSchema.js";
 import { RefreshToken } from "./RefreshTokenSchema.js";
 import crypto from "crypto";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 dotenv.config()
@@ -97,7 +97,7 @@ export class TodoModel {
     }
 
     // hash password as storing password directly is not secure enough.
-    // 1. install bcryptjs.
+    // 1. install bcrypt.
     // 2. create salt : random string so that no same password has same hash
     // 3. hash password
     async encryptPassword(password) {
